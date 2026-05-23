@@ -1,5 +1,22 @@
+"use client";
+
 import LogoutButton from "@/components/LogoutButton";
+import { useEffect, useState } from "react";
+import LanguageSelector from "@/components/LanguageSelector";
+import { translations, Language } from "@/lib/i18n";
+
 export default function Sidebar() {
+  const [language, setLanguage] = useState<Language>("en");
+
+useEffect(() => {
+  const savedLanguage = localStorage.getItem("language") as Language;
+
+  if (savedLanguage) {
+    setLanguage(savedLanguage);
+  }
+}, []);
+
+const t = translations[language];
   return (
     <aside className="w-72 bg-[#111827] border-r border-white/10 p-6">
       
@@ -13,28 +30,28 @@ export default function Sidebar() {
           href="/"
           className="block text-green-400 font-medium"
         >
-          Dashboard
+           {t.dashboard}
         </a>
 
         <a
           href="/workers"
           className="block text-gray-400 hover:text-white transition"
         >
-          Workers
+          {t.workers}
         </a>
 
         <a
           href="/schedule"
           className="block text-gray-400 hover:text-white transition"
         >
-          Schedule
+          {t.schedule}
         </a>
 
         <a
           href="/attendance"
           className="block text-gray-400 hover:text-white transition"
         >
-          Attendance
+          {t.attendance}
         </a>
 
         <a
@@ -43,7 +60,16 @@ export default function Sidebar() {
         >
           Settings
         </a>
+        <a
+  href="/tasks"
+  className="block text-gray-400 hover:text-white transition"
+>
+  {t.tasks}
+</a>
  <LogoutButton />
+ <div className="mt-8">
+  <LanguageSelector />
+</div>
       </nav>
 
     </aside>
