@@ -1,3 +1,4 @@
+import BottomNav from "@/components/BottomNav";
 import Sidebar from "@/components/Sidebar";
 import AddTaskForm from "@/components/AddTaskForm";
 import TaskDoneButton from "@/components/TaskDoneButton";

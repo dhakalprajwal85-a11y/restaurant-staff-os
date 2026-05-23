@@ -1,4 +1,5 @@
-import Sidebar from "@/components/Sidebar";
+
+import BottomNav from "@/components/BottomNav";import Sidebar from "@/components/Sidebar";
 import AddScheduleForm from "@/components/AddScheduleForm";
 import { supabase } from "@/lib/supabase";
 
@@ -51,6 +52,7 @@ export default async function SchedulePage() {
           ))}
         </div>
       </section>
+      <BottomNav />
     </main>
   );
 }

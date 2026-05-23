@@ -1,3 +1,4 @@
+import BottomNav from "@/components/BottomNav";
 import WorkersList from "@/components/WorkersList";
 import EditWorkerForm from "@/components/EditWorkerForm";
 import DeleteWorkerButton from "@/components/DeleteWorkerButton";

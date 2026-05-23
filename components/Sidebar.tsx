@@ -18,7 +18,7 @@ useEffect(() => {
 
 const t = translations[language];
   return (
-    <aside className="w-72 bg-[#111827] border-r border-white/10 p-6">
+   <aside className="hidden md:block w-72 border-r border-white/10 p-6">
       
       <h1 className="text-2xl font-bold text-green-400 mb-10">
         앞산큰골집

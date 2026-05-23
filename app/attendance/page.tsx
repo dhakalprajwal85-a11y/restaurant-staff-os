@@ -1,3 +1,4 @@
+import BottomNav from "@/components/BottomNav";
 import ClockOutButton from "@/components/ClockOutButton";
 import Sidebar from "@/components/Sidebar";
 import { supabase } from "@/lib/supabase";
@@ -62,6 +63,7 @@ export default async function AttendancePage() {
         </div>
 
       </section>
+          
 
     </main>
   );
