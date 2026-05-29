@@ -3,29 +3,35 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-export default function AddTaskForm() {
+type Worker = {
+  id: string;
+  name: string;
+};
 
+export default function AddTaskForm({ workers }: { workers: Worker[] }) {
+  const [workerId, setWorkerId] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
   async function addTask() {
-
     if (!title) {
-      return alert("Task title required");
+      alert("Task title is required");
+      return;
     }
 
-    const { error } = await supabase
-      .from("tasks")
-      .insert({
-        title,
-        description,
-        status: "pending",
-      });
+    const { error } = await supabase.from("tasks").insert({
+      worker_id: workerId || null,
+      title,
+      description,
+      status: "pending",
+    });
 
     if (error) {
-      return alert(error.message);
+      alert(error.message);
+      return;
     }
 
+    setWorkerId("");
     setTitle("");
     setDescription("");
 
@@ -34,10 +40,21 @@ export default function AddTaskForm() {
 
   return (
     <div className="bg-[#111827] border border-white/10 rounded-3xl p-6 mb-8">
+      <h2 className="text-3xl font-bold mb-6">Add Store Task</h2>
 
-      <h2 className="text-3xl font-bold mb-6">
-        Add Store Task
-      </h2>
+      <select
+        className="w-full bg-[#020817] border border-white/10 rounded-xl p-4 mb-4"
+        value={workerId}
+        onChange={(e) => setWorkerId(e.target.value)}
+      >
+        <option value="">Assign to worker</option>
+
+        {workers.map((worker) => (
+          <option key={worker.id} value={worker.id}>
+            {worker.name}
+          </option>
+        ))}
+      </select>
 
       <input
         placeholder="Task title"
@@ -59,7 +76,6 @@ export default function AddTaskForm() {
       >
         Save Task
       </button>
-
     </div>
   );
 }

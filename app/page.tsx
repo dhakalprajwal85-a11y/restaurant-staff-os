@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
 export default function Home() {
   return (
@@ -15,6 +16,12 @@ export default function Home() {
               Manage workers and daily operations
             </p>
           </div>
+          <Link
+           href="/qr"
+          className="bg-blue-600 text-white px-5 py-3 rounded-xl font-bold"
+            >
+          QR Attendance
+          </Link>
 
           <button className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-xl font-medium transition">
             Add Worker

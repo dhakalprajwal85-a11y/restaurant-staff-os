@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
 import { supabase } from "@/lib/supabase";
 
@@ -34,6 +35,16 @@ export default async function DashboardPage() {
         <h1 className="text-5xl font-bold mb-10">
           Dashboard
         </h1>
+        <h1 className="text-3xl font-bold">
+          Dashboard
+        </h1>
+
+        <Link
+          href="/qr"
+          className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg mb-6"
+          >
+            📱 QR Attendance
+        </Link>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
 
@@ -41,7 +52,6 @@ export default async function DashboardPage() {
             <p className="text-gray-400">
               Total Workers
             </p>
-
             <h2 className="text-5xl font-bold mt-4">
               {totalWorkers}
             </h2>

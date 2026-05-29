@@ -1,4 +1,5 @@
 "use client";
+import WorkerQRCode from "@/components/WorkerQRCode";
 import ClockInButton from "@/components/ClockInButton";
 import { useState } from "react";
 import EditWorkerForm from "@/components/EditWorkerForm";
@@ -42,7 +43,7 @@ export default function WorkersList({ workers }: { workers: Worker[] }) {
             <p className="mt-3 text-sm text-green-400">
   Status: {worker.status || "active"}
 </p>
-
+            <WorkerQRCode workerId={worker.id} />
             <EditWorkerForm worker={worker} />
             <DeleteWorkerButton workerId={worker.id} />
             <ClockInButton workerId={worker.id} />
