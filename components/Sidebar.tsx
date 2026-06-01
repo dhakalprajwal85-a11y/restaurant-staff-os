@@ -1,5 +1,5 @@
 "use client";
-
+import Link from "next/link";
 import LogoutButton from "@/components/LogoutButton";
 import { useEffect, useState } from "react";
 import LanguageSelector from "@/components/LanguageSelector";
@@ -26,50 +26,50 @@ const t = translations[language];
 
       <nav className="space-y-4">
 
-        <a
+        <Link
           href="/"
           className="block text-green-400 font-medium"
         >
            {t.dashboard}
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/workers"
           className="block text-gray-400 hover:text-white transition"
         >
           {t.workers}
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/schedule"
           className="block text-gray-400 hover:text-white transition"
         >
           {t.schedule}
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/attendance"
           className="block text-gray-400 hover:text-white transition"
         >
           {t.attendance}
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/settings"
           className="block text-gray-400 hover:text-white transition"
         >
           Settings
-        </a>
-        <a
-  href="/tasks"
-  className="block text-gray-400 hover:text-white transition"
->
-  {t.tasks}
-</a>
- <LogoutButton />
- <div className="mt-8">
-  <LanguageSelector />
-</div>
+        </Link>
+        <Link
+          href="/tasks"
+          className="block text-gray-400 hover:text-white transition"
+        >
+          {t.tasks}
+        </Link>
+        <LogoutButton />
+        <div className="mt-8">
+          <LanguageSelector />
+        </div>
       </nav>
 
     </aside>

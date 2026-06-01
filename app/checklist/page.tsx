@@ -1,4 +1,3 @@
-import BottomNav from "@/components/BottomNav";
 import Sidebar from "@/components/Sidebar";
 import AddChecklistItemForm from "@/components/AddChecklistItemForm";
 import ChecklistToggleButton from "@/components/ChecklistToggleButton";
