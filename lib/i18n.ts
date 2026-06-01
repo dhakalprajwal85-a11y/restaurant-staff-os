@@ -14,6 +14,9 @@ export const translations = {
     taskDescription: "Task description",
     saveTask: "Save Task",
     searchWorkers: "Search workers...",
+    dashboardTitle: "Dashboard",
+    qrAttendance: "QR Attendance",
+    totalWorkers: "Total Workers",
     },
   ko: {
     dashboard: "대시보드",
@@ -30,6 +33,9 @@ export const translations = {
     taskDescription: "업무 설명",
     saveTask: "업무 저장",
     searchWorkers: "직원 검색...",
+    dashboardTitle: "대시보드",
+    qrAttendance: "QR 출근",
+    totalWorkers: "전체 직원",
   },
   vi: {
     dashboard: "Bảng điều khiển",
@@ -46,6 +52,9 @@ export const translations = {
     taskDescription: "Mô Tả Công Việc",
     saveTask: "Lưu Công Việc",
     searchWorkers: "Tìm Kiếm Nhân Viên...",
+    dashboardTitle: "Bảng Điều Khiển",
+    qrAttendance: "Chấm Công QR",
+    totalWorkers: "Tổng Số Nhân Viên",
   },
 };
 
