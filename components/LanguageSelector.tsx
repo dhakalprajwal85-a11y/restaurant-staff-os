@@ -3,10 +3,8 @@
 export default function LanguageSelector() {
   function changeLanguage(language: string) {
     localStorage.setItem("language", language);
-    window.dispatchEvent(new Event("languageChange"));
     window.location.reload();
   }
-
   return (
     <select
       className="mt-8 bg-[#020817] border border-white/10 rounded-xl p-3 text-white"

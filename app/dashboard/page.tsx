@@ -9,7 +9,7 @@ export default  function DashboardPage() {
   const [workers, setWorkers] = useState<any[]>([]);
   const [attendance, setAttendance] = useState<any[]>([]);
   const [schedules, setSchedules] = useState<any[]>([]);
-
+  
   useEffect(() => {
   async function loadData() {
     const { data: workersData } = await supabase.from("workers").select("*");
@@ -31,26 +31,20 @@ export default  function DashboardPage() {
   const todayAttendance = attendance?.length || 0;
 
   const todaySchedules = schedules?.length || 0;
-  const [language, setLanguage] = useState<Language>("en");
+  
+ const [language, setLanguage] = useState<Language>("en");
 
-  useEffect(() => {
-  const updateLanguage = () => {
-    const savedLanguage =
-      (localStorage.getItem("language") as Language) || "en";
+useEffect(() => {
+  const savedLanguage = localStorage.getItem("language");
 
+  if (savedLanguage === "ko" || savedLanguage === "vi" || savedLanguage === "en") {
     setLanguage(savedLanguage);
-  };
-
-  updateLanguage();
-
-  window.addEventListener("languageChange", updateLanguage);
-
-  return () => {
-    window.removeEventListener("languageChange", updateLanguage);
-  };
+  }
 }, []);
 
-  const t = translations[language];
+const t = translations[language];
+console.log("DASHBOARD LANGUAGE:", language);
+console.log("DASHBOARD TEXT:", t.dashboardTitle);
   return (
     <main className="min-h-screen bg-[#020817] text-white flex">
 
@@ -59,10 +53,10 @@ export default  function DashboardPage() {
       <section className="flex-1 p-10">
 
         <h1 className="text-5xl font-bold mb-10">
-          {t.dashboardTitle}
+          TEST DASHBOARD
         </h1>
         <h1 className="text-3xl font-bold">
-          {t.dashboardTitle}
+          TEST DASHBOARD
         </h1>
 
         <Link
