@@ -1,5 +1,8 @@
 export const translations = {
   en: {
+    activeWorkers: "Active Workers",
+    attendanceLogs: "Attendance Logs",
+    scheduledShifts: "Scheduled Shifts",
     dashboard: "Dashboard",
     workers: "Workers",
     schedule: "Schedule",
@@ -19,6 +22,9 @@ export const translations = {
     totalWorkers: "Total Workers",
     },
   ko: {
+    activeWorkers: "근무 중 직원",
+    attendanceLogs: "출근 기록",
+    scheduledShifts: "예정 근무",
     dashboard: "대시보드",
     workers: "직원",
     schedule: "일정",
@@ -38,6 +44,9 @@ export const translations = {
     totalWorkers: "전체 직원",
   },
   vi: {
+    activeWorkers: "Nhân viên đang làm việc",
+    attendanceLogs: "Nhật ký chấm công",
+    scheduledShifts: "Ca làm việc đã lên lịch",
     dashboard: "Bảng điều khiển",
     workers: "Nhân viên",
     schedule: "Lịch làm việc",

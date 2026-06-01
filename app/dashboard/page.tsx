@@ -5,21 +5,24 @@ import { translations, Language } from "@/lib/i18n";
 import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
 import { supabase } from "@/lib/supabase";
+export default  function DashboardPage() {
+  const [workers, setWorkers] = useState<any[]>([]);
+  const [attendance, setAttendance] = useState<any[]>([]);
+  const [schedules, setSchedules] = useState<any[]>([]);
 
-export default async function DashboardPage() {
+  useEffect(() => {
+  async function loadData() {
+    const { data: workersData } = await supabase.from("workers").select("*");
+    const { data: attendanceData } = await supabase.from("attendance_logs").select("*");
+    const { data: schedulesData } = await supabase.from("schedules").select("*");
 
-  const { data: workers } = await supabase
-    .from("workers")
-    .select("*");
+    setWorkers(workersData || []);
+    setAttendance(attendanceData || []);
+    setSchedules(schedulesData || []);
+  }
 
-  const { data: attendance } = await supabase
-    .from("attendance_logs")
-    .select("*");
-
-  const { data: schedules } = await supabase
-    .from("schedules")
-    .select("*");
-
+  loadData();
+}, []);
   const totalWorkers = workers?.length || 0;
 
   const activeWorkers =
@@ -72,7 +75,7 @@ export default async function DashboardPage() {
 
           <div className="bg-[#111827] border border-white/10 rounded-3xl p-6">
             <p className="text-gray-400">
-              Active Workers
+              {t.activeWorkers}
             </p>
 
             <h2 className="text-5xl font-bold mt-4 text-green-400">
@@ -82,7 +85,7 @@ export default async function DashboardPage() {
 
           <div className="bg-[#111827] border border-white/10 rounded-3xl p-6">
             <p className="text-gray-400">
-              Attendance Logs
+              {t.attendanceLogs}
             </p>
 
             <h2 className="text-5xl font-bold mt-4 text-blue-400">
@@ -92,7 +95,7 @@ export default async function DashboardPage() {
 
           <div className="bg-[#111827] border border-white/10 rounded-3xl p-6">
             <p className="text-gray-400">
-              Scheduled Shifts
+              {t.scheduledShifts}
             </p>
 
             <h2 className="text-5xl font-bold mt-4 text-yellow-400">
