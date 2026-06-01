@@ -1,7 +1,8 @@
+
 import ClockOutButton from "@/components/ClockOutButton";
 import Sidebar from "@/components/Sidebar";
 import { supabase } from "@/lib/supabase";
-
+export const dynamic = "force-dynamic";
 export default async function AttendancePage() {
 
   const { data: logs } = await supabase
