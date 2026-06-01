@@ -34,11 +34,21 @@ export default  function DashboardPage() {
   const [language, setLanguage] = useState<Language>("en");
 
   useEffect(() => {
+  const updateLanguage = () => {
     const savedLanguage =
       (localStorage.getItem("language") as Language) || "en";
 
     setLanguage(savedLanguage);
-  }, []);
+  };
+
+  updateLanguage();
+
+  window.addEventListener("languageChange", updateLanguage);
+
+  return () => {
+    window.removeEventListener("languageChange", updateLanguage);
+  };
+}, []);
 
   const t = translations[language];
   return (
@@ -52,7 +62,7 @@ export default  function DashboardPage() {
           {t.dashboardTitle}
         </h1>
         <h1 className="text-3xl font-bold">
-          Dashboard
+          {t.dashboardTitle}
         </h1>
 
         <Link
