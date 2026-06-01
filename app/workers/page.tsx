@@ -5,6 +5,7 @@ import DeleteWorkerButton from "@/components/DeleteWorkerButton";
 import AddWorkerForm from "@/components/AddWorkerForm";
 import Sidebar from "@/components/Sidebar";
 import { supabase } from "@/lib/supabase";
+import { translations } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,7 @@ export default async function WorkersPage() {
   const { data: workers, error } = await supabase
     .from("workers")
     .select("*");
-
+  const t = translations.ko;
   console.log(workers);
   console.log(error);
 
@@ -22,10 +23,10 @@ export default async function WorkersPage() {
 
       <section className="flex-1 p-10">
         <div className="flex items-center justify-between mb-10">
-          <h1 className="text-5xl font-bold">Workers</h1>
+          <h1 className="text-5xl font-bold">{t.workersTitle}</h1>
 
           <button className="bg-green-500 px-6 py-4 rounded-2xl font-bold">
-            Add Worker
+            {t.addWorker}
           </button>
         </div>
         <AddWorkerForm />
