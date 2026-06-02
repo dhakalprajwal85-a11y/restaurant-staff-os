@@ -35,6 +35,12 @@ export const translations = {
     dashboardTitle: "Dashboard",
     qrAttendance: "QR Attendance",
     totalWorkers: "Total Workers",
+    welcomeBack: "Welcome back, Staff",
+    manageOperations: "Manage workers and daily operations",
+    activeStaff: "Active Staff",
+    todaySales: "Today Sales",
+    reservations: "Reservations",
+    entryTime: "Entry Time",
     },
   ko: {
     activeWorkers: "근무 중 직원",
@@ -57,6 +63,12 @@ export const translations = {
     dashboardTitle: "대시보드",
     qrAttendance: "QR 출근",
     totalWorkers: "전체 직원",
+    welcomeBack: "다시 오신 것을 환영합니다, 직원님",
+    manageOperations: "직원과 일일 운영을 관리하세요",
+    activeStaff: "근무 중 직원",
+    todaySales: "오늘 매출",
+    reservations: "예약",
+    entryTime: "출근 시간",
   },
   vi: {
     activeWorkers: "Nhân viên đang làm việc",
@@ -79,6 +91,12 @@ export const translations = {
     dashboardTitle: "Bảng Điều Khiển",
     qrAttendance: "Chấm Công QR",
     totalWorkers: "Tổng Số Nhân Viên",
+    welcomeBack: "Chào mừng quay lại, Nhân viên",
+    manageOperations: "Quản lý nhân viên và hoạt động hàng ngày",
+    activeStaff: "Nhân viên đang làm việc",
+    todaySales: "Doanh số hôm nay",
+    reservations: "Đặt chỗ",
+    entryTime: "Thời gian vào ca",
   },
 };
 
