@@ -28,7 +28,7 @@ export default function SettingsPage() {
     localStorage.setItem("openingTime", openingTime);
     localStorage.setItem("closingTime", closingTime);
     localStorage.setItem("hourlyWage", hourlyWage);
-
+    window.dispatchEvent(new Event("settingsChanged"));
     setSaved(true);
 
     setTimeout(() => {
