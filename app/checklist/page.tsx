@@ -1,27 +1,47 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useLanguage } from "@/lib/i18n";
 import Sidebar from "@/components/Sidebar";
 import AddChecklistItemForm from "@/components/AddChecklistItemForm";
 import ChecklistToggleButton from "@/components/ChecklistToggleButton";
 import { supabase } from "@/lib/supabase";
 
-export default async function ChecklistPage() {
-  const { data: items } = await supabase
-    .from("checklist_items")
-    .select("*")
-    .order("created_at", { ascending: false });
+export default function ChecklistPage() {
+  const { t } = useLanguage();
+  const [items, setItems] = useState<any[]>([]);
 
-  const openingItems = items?.filter((item) => item.shift === "opening") || [];
-  const closingItems = items?.filter((item) => item.shift === "closing") || [];
+  useEffect(() => {
+    const fetchItems = async () => {
+      const { data } = await supabase
+        .from("checklist_items")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      setItems(data || []);
+    };
+
+    fetchItems();
+  }, []);
+
+  const openingItems = items.filter((item) => item.shift === "opening");
+  const closingItems = items.filter((item) => item.shift === "closing");
 
   return (
     <main className="min-h-screen bg-[#020817] text-white flex">
       <Sidebar />
 
       <section className="flex-1 p-10">
-        <h1 className="text-5xl font-bold mb-10">Checklist</h1>
+        <h1 className="text-5xl font-bold mb-10">
+          {t("checklistTitle")}
+        </h1>
 
         <AddChecklistItemForm />
 
-        <h2 className="text-3xl font-bold mb-4">Opening</h2>
+        <h2 className="text-3xl font-bold mb-4 mt-10">
+          {t("opening")}
+        </h2>
+
         <div className="space-y-4 mb-10">
           {openingItems.map((item) => (
             <div
@@ -40,7 +60,10 @@ export default async function ChecklistPage() {
           ))}
         </div>
 
-        <h2 className="text-3xl font-bold mb-4">Closing</h2>
+        <h2 className="text-3xl font-bold mb-4">
+          {t("closing")}
+        </h2>
+
         <div className="space-y-4">
           {closingItems.map((item) => (
             <div
@@ -59,7 +82,6 @@ export default async function ChecklistPage() {
           ))}
         </div>
       </section>
-
     </main>
   );
 }

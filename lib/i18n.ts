@@ -1,3 +1,18 @@
+export function useLanguage() {
+  const language =
+    typeof window !== "undefined"
+      ? localStorage.getItem("language") || "en"
+      : "en";
+
+  const t = (key: string) => {
+    const selectedTranslations =
+      translations[language as keyof typeof translations] as Record<string, string>;
+
+    return selectedTranslations?.[key] || key;
+  };
+
+  return { language, t };
+}
 export const translations = {
   en: {
     activeWorkers: "Active Workers",
