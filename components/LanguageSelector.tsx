@@ -3,6 +3,7 @@
 export default function LanguageSelector() {
   function changeLanguage(language: string) {
     localStorage.setItem("language", language);
+    window.dispatchEvent(new Event("languageChanged"));
     window.location.reload();
   }
   return (

@@ -1,13 +1,34 @@
+"use client";
+import { useEffect, useState } from "react";
 export function useLanguage() {
-  const language =
-    typeof window !== "undefined"
-      ? localStorage.getItem("language") || "en"
-      : "en";
+  const [language, setLanguageState] = useState<keyof typeof translations>("en");
+
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("language") as keyof typeof translations;
+
+    if (savedLanguage && translations[savedLanguage]) {
+      setLanguageState(savedLanguage);
+    }
+
+    const handleStorageChange = () => {
+      const updatedLanguage = localStorage.getItem("language") as keyof typeof translations;
+
+      if (updatedLanguage && translations[updatedLanguage]) {
+        setLanguageState(updatedLanguage);
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("languageChanged", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("languageChanged", handleStorageChange);
+    };
+  }, []);
 
   const t = (key: string) => {
-    const selectedTranslations =
-      translations[language as keyof typeof translations] as Record<string, string>;
-
+    const selectedTranslations = translations[language] as Record<string, string>;
     return selectedTranslations?.[key] || key;
   };
 
