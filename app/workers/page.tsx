@@ -1,21 +1,20 @@
 import WorkersClient from "@/components/WorkersClient";
-import BottomNav from "@/components/BottomNav";
 import WorkersList from "@/components/WorkersList";
-import EditWorkerForm from "@/components/EditWorkerForm";
-import DeleteWorkerButton from "@/components/DeleteWorkerButton";
 import AddWorkerForm from "@/components/AddWorkerForm";
 import Sidebar from "@/components/Sidebar";
-import { supabase } from "@/lib/supabase"
+import { supabase } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
 export default async function WorkersPage() {
   const { data: workers, error } = await supabase
     .from("workers")
-    .select("*");
-  
-  console.log(workers);
-  console.log(error);
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Workers load error:", error.message);
+  }
 
   return (
     <main className="min-h-screen bg-[#020817] text-white flex">
@@ -23,32 +22,25 @@ export default async function WorkersPage() {
 
       <section className="flex-1 p-10">
         <div className="flex items-center justify-between mb-10">
-          <WorkersClient />
+          <div>
+            <h1 className="text-5xl font-bold">Workers</h1>
+            <p className="text-gray-400 mt-2">
+              Manage restaurant employees, positions, wages, and profiles.
+            </p>
+          </div>
         </div>
-        <AddWorkerForm />
-        <WorkersList workers={workers || []} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {workers?.map((worker) => (
-            <div
-              key={worker.id}
-              className="bg-[#111827] border border-white/10 rounded-2xl p-6"
-            >
-              <h2 className="text-2xl font-bold mb-3">
-                {worker.name}
-              </h2>
+        <div className="bg-[#111827] border border-white/10 rounded-2xl p-6 mb-8">
+          <h2 className="text-2xl font-bold mb-4">Add New Worker</h2>
+          <AddWorkerForm />
+        </div>
 
-              <p className="text-gray-400 mb-2">
-                {worker.role}
-              </p>
+        <div className="bg-[#111827] border border-white/10 rounded-2xl p-6">
+          <WorkersClient />
 
-              <p className="text-gray-500">
-                {worker.phone}
-              </p>
-              <EditWorkerForm worker={worker} />
-              <DeleteWorkerButton workerId={worker.id} />
-            </div>
-          ))}
+          <div className="mt-6">
+            <WorkersList workers={workers || []} />
+          </div>
         </div>
       </section>
     </main>

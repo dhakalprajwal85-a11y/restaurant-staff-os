@@ -1,20 +1,15 @@
 "use client";
 
+import { useLanguage, Language } from "@/lib/i18n";
+
 export default function LanguageSelector() {
-  function changeLanguage(language: string) {
-    localStorage.setItem("language", language);
-    window.dispatchEvent(new Event("languageChanged"));
-    window.location.reload();
-  }
+  const { language, setLanguage } = useLanguage();
+
   return (
     <select
       className="mt-8 bg-[#020817] border border-white/10 rounded-xl p-3 text-white"
-      defaultValue={
-        typeof window !== "undefined"
-          ? localStorage.getItem("language") || "en"
-          : "en"
-      }
-      onChange={(e) => changeLanguage(e.target.value)}
+      value={language}
+      onChange={(e) => setLanguage(e.target.value as Language)}
     >
       <option value="en">English</option>
       <option value="ko">한국어</option>
