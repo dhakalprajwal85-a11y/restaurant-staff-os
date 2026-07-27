@@ -3,6 +3,14 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
+type CreateWorkerResponse = {
+  success?: boolean;
+  message?: string;
+  error?: string;
+  workerId?: string;
+  userId?: string;
+};
+
 export default function AddWorkerForm() {
   const router = useRouter();
 
@@ -15,48 +23,86 @@ export default function AddWorkerForm() {
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!name.trim()) {
+    const cleanName = name.trim();
+    const cleanLoginId = loginId.trim().toLowerCase();
+    const cleanPassword = password;
+
+    setMessage("");
+    setIsSuccess(false);
+
+    if (!cleanName) {
       setMessage("Worker name is required.");
       return;
     }
 
-    if (!loginId.trim()) {
+    if (!cleanLoginId) {
       setMessage("Login ID is required.");
       return;
     }
 
-    if (!password.trim()) {
+    if (!cleanLoginId.includes("@")) {
+      setMessage("Login ID must be a valid email address.");
+      return;
+    }
+
+    if (!cleanPassword) {
       setMessage("Password is required.");
       return;
     }
 
-    setLoading(true);
-    setMessage("");
+    if (cleanPassword.length < 6) {
+      setMessage("Password must be at least 6 characters.");
+      return;
+    }
 
     try {
+      setLoading(true);
+
       const response = await fetch("/api/create-worker", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: name.trim(),
-          position: position.trim(),
+          name: cleanName,
+          email: cleanLoginId,
+          password: cleanPassword,
           phone: phone.trim(),
-          hourly_wage: hourlyWage ? Number(hourlyWage) : null,
-          login_id: loginId.trim(),
-          password,
+          position: position.trim(),
+          hourlyWage:
+            hourlyWage.trim() === ""
+              ? null
+              : Number(hourlyWage),
         }),
       });
 
-      const result = await response.json();
+      const contentType = response.headers.get("content-type");
+
+      if (!contentType?.includes("application/json")) {
+        const responseText = await response.text();
+
+        console.error(
+          "Unexpected create-worker response:",
+          responseText
+        );
+
+        throw new Error(
+          `The server returned an invalid response (${response.status}).`
+        );
+      }
+
+      const result =
+        (await response.json()) as CreateWorkerResponse;
 
       if (!response.ok) {
-        throw new Error(result.error || "Failed to add worker.");
+        throw new Error(
+          result.error || "Failed to add worker."
+        );
       }
 
       setName("");
@@ -66,12 +112,20 @@ export default function AddWorkerForm() {
       setLoginId("");
       setPassword("");
 
-      setMessage("Worker added successfully.");
+      setIsSuccess(true);
+      setMessage(
+        result.message || "Worker added successfully."
+      );
 
       router.refresh();
     } catch (error) {
+      console.error("Add worker error:", error);
+
+      setIsSuccess(false);
       setMessage(
-        error instanceof Error ? error.message : "Failed to add worker."
+        error instanceof Error
+          ? error.message
+          : "Failed to add worker."
       );
     } finally {
       setLoading(false);
@@ -90,8 +144,9 @@ export default function AddWorkerForm() {
           value={name}
           onChange={(event) => setName(event.target.value)}
           placeholder="Enter worker name"
-          className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-green-500"
+          disabled={loading}
           required
+          className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-green-500 disabled:cursor-not-allowed disabled:opacity-60"
         />
       </div>
 
@@ -103,9 +158,12 @@ export default function AddWorkerForm() {
         <input
           type="text"
           value={position}
-          onChange={(event) => setPosition(event.target.value)}
+          onChange={(event) =>
+            setPosition(event.target.value)
+          }
           placeholder="Example: Server, Cook, Manager"
-          className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-green-500"
+          disabled={loading}
+          className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-green-500 disabled:cursor-not-allowed disabled:opacity-60"
         />
       </div>
 
@@ -119,7 +177,8 @@ export default function AddWorkerForm() {
           value={phone}
           onChange={(event) => setPhone(event.target.value)}
           placeholder="Enter phone number"
-          className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-green-500"
+          disabled={loading}
+          className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-green-500 disabled:cursor-not-allowed disabled:opacity-60"
         />
       </div>
 
@@ -133,9 +192,12 @@ export default function AddWorkerForm() {
           min="0"
           step="1"
           value={hourlyWage}
-          onChange={(event) => setHourlyWage(event.target.value)}
+          onChange={(event) =>
+            setHourlyWage(event.target.value)
+          }
           placeholder="Enter hourly wage"
-          className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-green-500"
+          disabled={loading}
+          className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-green-500 disabled:cursor-not-allowed disabled:opacity-60"
         />
       </div>
 
@@ -146,12 +208,15 @@ export default function AddWorkerForm() {
           </label>
 
           <input
-            type="text"
+            type="email"
             value={loginId}
-            onChange={(event) => setLoginId(event.target.value)}
-            placeholder="Worker login ID"
-            className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-green-500"
+            onChange={(event) =>
+              setLoginId(event.target.value)
+            }
+            placeholder="Worker email / login ID"
+            disabled={loading}
             required
+            className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-green-500 disabled:cursor-not-allowed disabled:opacity-60"
           />
         </div>
 
@@ -163,10 +228,14 @@ export default function AddWorkerForm() {
           <input
             type="password"
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={(event) =>
+              setPassword(event.target.value)
+            }
             placeholder="Worker password"
-            className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-green-500"
+            disabled={loading}
+            minLength={6}
             required
+            className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-green-500 disabled:cursor-not-allowed disabled:opacity-60"
           />
         </div>
       </div>
@@ -174,7 +243,7 @@ export default function AddWorkerForm() {
       {message && (
         <p
           className={`rounded-lg px-4 py-3 text-sm ${
-            message.includes("successfully")
+            isSuccess
               ? "bg-green-500/10 text-green-300"
               : "bg-red-500/10 text-red-300"
           }`}
