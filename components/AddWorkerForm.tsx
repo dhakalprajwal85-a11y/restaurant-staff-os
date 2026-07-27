@@ -1,65 +1,195 @@
 "use client";
 
-import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default function AddTaskForm() {
+export default function AddWorkerForm() {
+  const router = useRouter();
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [name, setName] = useState("");
+  const [position, setPosition] = useState("");
+  const [phone, setPhone] = useState("");
+  const [hourlyWage, setHourlyWage] = useState("");
+  const [loginId, setLoginId] = useState("");
+  const [password, setPassword] = useState("");
 
-  async function addTask() {
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
-    if (!title) {
-      return alert("Task title required");
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!name.trim()) {
+      setMessage("Worker name is required.");
+      return;
     }
 
-    const { error } = await supabase
-      .from("tasks")
-      .insert({
-        title,
-        description,
-        status: "pending",
+    if (!loginId.trim()) {
+      setMessage("Login ID is required.");
+      return;
+    }
+
+    if (!password.trim()) {
+      setMessage("Password is required.");
+      return;
+    }
+
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const response = await fetch("/api/create-worker", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          position: position.trim(),
+          phone: phone.trim(),
+          hourly_wage: hourlyWage ? Number(hourlyWage) : null,
+          login_id: loginId.trim(),
+          password,
+        }),
       });
 
-    if (error) {
-      return alert(error.message);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to add worker.");
+      }
+
+      setName("");
+      setPosition("");
+      setPhone("");
+      setHourlyWage("");
+      setLoginId("");
+      setPassword("");
+
+      setMessage("Worker added successfully.");
+
+      router.refresh();
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : "Failed to add worker."
+      );
+    } finally {
+      setLoading(false);
     }
-
-    setTitle("");
-    setDescription("");
-
-    window.location.reload();
   }
 
   return (
-    <div className="bg-[#111827] border border-white/10 rounded-3xl p-6 mb-8">
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div>
+        <label className="mb-2 block text-sm font-medium text-gray-300">
+          Worker name
+        </label>
 
-      <h2 className="text-3xl font-bold mb-6">
-        Add Store Task
-      </h2>
+        <input
+          type="text"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          placeholder="Enter worker name"
+          className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-green-500"
+          required
+        />
+      </div>
 
-      <input
-        placeholder="Task title"
-        className="w-full bg-[#020817] border border-white/10 rounded-xl p-4 mb-4"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
+      <div>
+        <label className="mb-2 block text-sm font-medium text-gray-300">
+          Position
+        </label>
 
-      <textarea
-        placeholder="Task description"
-        className="w-full bg-[#020817] border border-white/10 rounded-xl p-4 mb-4"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
+        <input
+          type="text"
+          value={position}
+          onChange={(event) => setPosition(event.target.value)}
+          placeholder="Example: Server, Cook, Manager"
+          className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-green-500"
+        />
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-medium text-gray-300">
+          Phone number
+        </label>
+
+        <input
+          type="tel"
+          value={phone}
+          onChange={(event) => setPhone(event.target.value)}
+          placeholder="Enter phone number"
+          className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-green-500"
+        />
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-medium text-gray-300">
+          Hourly wage
+        </label>
+
+        <input
+          type="number"
+          min="0"
+          step="1"
+          value={hourlyWage}
+          onChange={(event) => setHourlyWage(event.target.value)}
+          placeholder="Enter hourly wage"
+          className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-green-500"
+        />
+      </div>
+
+      <div className="grid gap-5 md:grid-cols-2">
+        <div>
+          <label className="mb-2 block text-sm font-medium text-gray-300">
+            Login ID
+          </label>
+
+          <input
+            type="text"
+            value={loginId}
+            onChange={(event) => setLoginId(event.target.value)}
+            placeholder="Worker login ID"
+            className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-green-500"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-gray-300">
+            Password
+          </label>
+
+          <input
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="Worker password"
+            className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-green-500"
+            required
+          />
+        </div>
+      </div>
+
+      {message && (
+        <p
+          className={`rounded-lg px-4 py-3 text-sm ${
+            message.includes("successfully")
+              ? "bg-green-500/10 text-green-300"
+              : "bg-red-500/10 text-red-300"
+          }`}
+        >
+          {message}
+        </p>
+      )}
 
       <button
-        onClick={addTask}
-        className="bg-green-500 hover:bg-green-600 px-6 py-3 rounded-xl font-bold"
+        type="submit"
+        disabled={loading}
+        className="rounded-xl bg-green-500 px-6 py-3 font-bold text-white transition hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        Save Task
+        {loading ? "Adding Worker..." : "Add Worker"}
       </button>
-
-    </div>
+    </form>
   );
 }
