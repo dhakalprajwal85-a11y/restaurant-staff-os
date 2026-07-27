@@ -1,4 +1,3 @@
-import WorkersClient from "@/components/WorkersClient";
 import WorkersList from "@/components/WorkersList";
 import AddWorkerForm from "@/components/AddWorkerForm";
 import Sidebar from "@/components/Sidebar";
@@ -17,30 +16,63 @@ export default async function WorkersPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#020817] text-white flex">
+    <main className="flex min-h-screen bg-[#020817] text-white">
       <Sidebar />
 
-      <section className="flex-1 p-10">
-        <div className="flex items-center justify-between mb-10">
-          <div>
-            <h1 className="text-5xl font-bold">Workers</h1>
-            <p className="text-gray-400 mt-2">
-              Manage restaurant employees, positions, wages, and profiles.
+      <section className="min-w-0 flex-1 px-4 py-6 sm:p-8 lg:p-10">
+        {/* Page heading */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold sm:text-4xl lg:text-5xl">
+            Workers
+          </h1>
+
+          <p className="mt-2 text-sm text-gray-400 sm:text-base">
+            Manage restaurant employees, positions, wages, and profiles.
+          </p>
+        </div>
+
+        {/* Add worker expandable form */}
+        <details className="group mb-8 overflow-hidden rounded-2xl border border-white/10 bg-[#111827]">
+          <summary className="flex cursor-pointer list-none items-center justify-between p-5 sm:p-6">
+            <div>
+              <h2 className="text-xl font-bold sm:text-2xl">
+                Add New Worker
+              </h2>
+
+              <p className="mt-1 text-sm text-gray-400">
+                Tap here to open the worker form.
+              </p>
+            </div>
+
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500 text-2xl font-bold text-white transition-transform group-open:rotate-45">
+              +
+            </span>
+          </summary>
+
+          <div className="border-t border-white/10 p-5 sm:p-6">
+            <AddWorkerForm />
+          </div>
+        </details>
+
+        {/* Workers list */}
+        <div className="rounded-2xl border border-white/10 bg-[#111827] p-5 sm:p-6">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold sm:text-3xl">
+              Current Workers
+            </h2>
+
+            <p className="mt-1 text-sm text-gray-400">
+              View and manage registered employees.
             </p>
           </div>
-        </div>
 
-        <div className="bg-[#111827] border border-white/10 rounded-2xl p-6 mb-8">
-          <h2 className="text-2xl font-bold mb-4">Add New Worker</h2>
-          <AddWorkerForm />
-        </div>
-
-        <div className="bg-[#111827] border border-white/10 rounded-2xl p-6">
-          <WorkersClient />
-
-          <div className="mt-6">
-            <WorkersList workers={workers || []} />
-          </div>
+          {error ? (
+            <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-300">
+              Failed to load workers: {error.message}
+            </div>
+          ) : (
+            <WorkersList workers={workers ?? []} />
+          )}
         </div>
       </section>
     </main>
