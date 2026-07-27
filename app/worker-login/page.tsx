@@ -1,93 +1,136 @@
 "use client";
 
-import { useState } from "react";
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 export default function WorkerLoginPage() {
+  const router = useRouter();
+
   const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  async function handleLogin() {
-    if (!loginId || !password) {
-      alert("Please enter your Worker ID and Password.");
+  async function handleLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const email = loginId.trim().toLowerCase();
+
+    setErrorMessage("");
+
+    if (!email || !password) {
+      setErrorMessage("Login ID and password are required.");
       return;
     }
 
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const { data: worker, error } = await supabase
-      .from("workers")
-      .select("*")
-      .eq("login_id", loginId)
-      .eq("password", password)
-      .eq("status", "active")
-      .maybeSingle();
+      // 1. Sign in through Supabase Auth
+      const { data: authData, error: authError } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
-    setLoading(false);
+      if (authError || !authData.user) {
+        throw new Error(
+          authError?.message || "Wrong Worker ID or Password."
+        );
+      }
 
-    if (error) {
-      alert(error.message);
-      return;
+      // 2. Find the linked worker record
+      const { data: worker, error: workerError } = await supabase
+        .from("workers")
+        .select(
+          "id, auth_user_id, name, email, login_id, phone, position, hourly_wage, status, role"
+        )
+        .eq("auth_user_id", authData.user.id)
+        .single();
+
+      if (workerError || !worker) {
+        await supabase.auth.signOut();
+
+        throw new Error(
+          "Worker profile was not found. Please contact the manager."
+        );
+      }
+
+      if (worker.status !== "active") {
+        await supabase.auth.signOut();
+
+        throw new Error("This worker account is not active.");
+      }
+
+      // Temporary compatibility with your current worker app
+      localStorage.setItem("worker", JSON.stringify(worker));
+
+      router.replace("/worker-app");
+      router.refresh();
+    } catch (error) {
+      console.error("Worker login error:", error);
+
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Failed to sign in."
+      );
+    } finally {
+      setLoading(false);
     }
-
-    if (!worker) {
-      alert("Wrong Worker ID or Password.");
-      return;
-    }
-
-    localStorage.setItem(
-  "worker",
-  JSON.stringify({
-    id: worker.id,
-    name: worker.name,
-    login_id: worker.login_id,
-  })
-);
-
-localStorage.setItem("worker_id", worker.id);
-localStorage.setItem("worker_name", worker.name);
-localStorage.setItem("worker_login_id", worker.login_id);
-
-window.location.href = "/worker-app";
   }
 
   return (
-    <main className="min-h-screen bg-gray-950 flex items-center justify-center text-white">
-      <div className="bg-gray-900 p-8 rounded-xl shadow-xl w-full max-w-md">
-
-        <h1 className="text-4xl font-bold mb-2 text-center">
+    <main className="flex min-h-screen items-center justify-center bg-[#020817] p-6 text-white">
+      <form
+        onSubmit={handleLogin}
+        className="w-full max-w-md rounded-3xl border border-white/10 bg-[#111827] p-8"
+      >
+        <h1 className="mb-2 text-center text-4xl font-bold">
           Worker Login
         </h1>
 
-        <p className="text-gray-400 text-center mb-8">
+        <p className="mb-8 text-center text-gray-400">
           Sign in to access your dashboard
         </p>
 
-        <input
-          type="text"
-          value={loginId}
-          onChange={(e) => setLoginId(e.target.value)}
-          placeholder="Worker ID"
-          className="w-full p-3 mb-4 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <div className="space-y-5">
+          <input
+            type="email"
+            value={loginId}
+            onChange={(event) => setLoginId(event.target.value)}
+            placeholder="Worker email / Login ID"
+            disabled={loading}
+            required
+            className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-4 text-white outline-none placeholder:text-gray-500 focus:border-green-500"
+          />
 
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          className="w-full p-3 mb-6 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+          <input
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="Password"
+            disabled={loading}
+            required
+            className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-4 text-white outline-none placeholder:text-gray-500 focus:border-green-500"
+          />
 
-        <button
-          onClick={handleLogin}
-          disabled={loading}
-          className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 p-3 rounded-lg font-bold transition"
-        >
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </div>
+          {errorMessage && (
+            <div className="rounded-xl bg-red-500/10 p-4 text-red-300">
+              {errorMessage}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-xl bg-green-500 px-6 py-4 font-bold text-white hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </div>
+      </form>
     </main>
   );
 }
