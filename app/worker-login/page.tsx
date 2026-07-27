@@ -4,6 +4,19 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
+type Worker = {
+  id: string;
+  auth_user_id: string;
+  name: string;
+  email: string | null;
+  login_id: string | null;
+  phone: string | null;
+  position: string | null;
+  hourly_wage: number | null;
+  status: string;
+  role: string;
+};
+
 export default function WorkerLoginPage() {
   const router = useRouter();
 
@@ -12,7 +25,9 @@ export default function WorkerLoginPage() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  async function handleLogin(event: FormEvent<HTMLFormElement>) {
+  async function handleLogin(
+    event: FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
 
     const email = loginId.trim().toLowerCase();
@@ -20,14 +35,16 @@ export default function WorkerLoginPage() {
     setErrorMessage("");
 
     if (!email || !password) {
-      setErrorMessage("Login ID and password are required.");
+      setErrorMessage(
+        "Login ID and password are required."
+      );
       return;
     }
 
     try {
       setLoading(true);
 
-      // 1. Sign in through Supabase Auth
+      // 1. Sign in with Supabase Auth
       const { data: authData, error: authError } =
         await supabase.auth.signInWithPassword({
           email,
@@ -36,18 +53,22 @@ export default function WorkerLoginPage() {
 
       if (authError || !authData.user) {
         throw new Error(
-          authError?.message || "Wrong Worker ID or Password."
+          authError?.message ||
+            "Wrong Worker ID or Password."
         );
       }
 
-      // 2. Find the linked worker record
-      const { data: worker, error: workerError } = await supabase
-        .from("workers")
-        .select(
-          "id, auth_user_id, name, email, login_id, phone, position, hourly_wage, status, role"
-        )
-        .eq("auth_user_id", authData.user.id)
-        .single();
+      // 2. Load the worker linked to this Auth user
+      const { data, error: workerError } =
+        await supabase
+          .from("workers")
+          .select(
+            "id, auth_user_id, name, email, login_id, phone, position, hourly_wage, status, role"
+          )
+          .eq("auth_user_id", authData.user.id)
+          .single();
+
+      const worker = data as Worker | null;
 
       if (workerError || !worker) {
         await supabase.auth.signOut();
@@ -60,16 +81,37 @@ export default function WorkerLoginPage() {
       if (worker.status !== "active") {
         await supabase.auth.signOut();
 
-        throw new Error("This worker account is not active.");
+        throw new Error(
+          "This worker account is not active."
+        );
       }
 
-      // Temporary compatibility with your current worker app
-      localStorage.setItem("worker", JSON.stringify(worker));
+      if (worker.role !== "worker") {
+        await supabase.auth.signOut();
 
+        throw new Error(
+          "This account does not have worker access."
+        );
+      }
+
+      // Compatibility with the existing worker pages
+      localStorage.setItem(
+        "worker",
+        JSON.stringify(worker)
+      );
+
+      localStorage.setItem(
+        "worker_id",
+        worker.id
+      );
+
+      // Redirect only after storage has been written
       router.replace("/worker-app");
-      router.refresh();
     } catch (error) {
       console.error("Worker login error:", error);
+
+      localStorage.removeItem("worker");
+      localStorage.removeItem("worker_id");
 
       setErrorMessage(
         error instanceof Error
@@ -99,21 +141,27 @@ export default function WorkerLoginPage() {
           <input
             type="email"
             value={loginId}
-            onChange={(event) => setLoginId(event.target.value)}
+            onChange={(event) =>
+              setLoginId(event.target.value)
+            }
             placeholder="Worker email / Login ID"
             disabled={loading}
+            autoComplete="email"
             required
-            className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-4 text-white outline-none placeholder:text-gray-500 focus:border-green-500"
+            className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-4 text-white outline-none placeholder:text-gray-500 focus:border-green-500 disabled:cursor-not-allowed disabled:opacity-60"
           />
 
           <input
             type="password"
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={(event) =>
+              setPassword(event.target.value)
+            }
             placeholder="Password"
             disabled={loading}
+            autoComplete="current-password"
             required
-            className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-4 text-white outline-none placeholder:text-gray-500 focus:border-green-500"
+            className="w-full rounded-xl border border-white/10 bg-[#020817] px-4 py-4 text-white outline-none placeholder:text-gray-500 focus:border-green-500 disabled:cursor-not-allowed disabled:opacity-60"
           />
 
           {errorMessage && (
