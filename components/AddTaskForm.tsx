@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 type Worker = {
@@ -8,46 +8,92 @@ type Worker = {
   name: string;
 };
 
-export default function AddTaskForm({ workers }: { workers: Worker[] }) {
+type AddTaskFormProps = {
+  workers: Worker[];
+};
+
+export default function AddTaskForm({
+  workers,
+}: AddTaskFormProps) {
   const [workerId, setWorkerId] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
-  async function addTask() {
-    if (!title) {
-      alert("Task title is required");
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault();
+
+    const cleanTitle = title.trim();
+    const cleanDescription = description.trim();
+
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    if (!cleanTitle) {
+      setErrorMessage("Task title is required.");
       return;
     }
 
-    const { error } = await supabase.from("tasks").insert({
-      worker_id: workerId || null,
-      title,
-      description,
-      status: "pending",
-    });
+    try {
+      setLoading(true);
 
-    if (error) {
-      alert(error.message);
-      return;
+      const { error } = await supabase.from("tasks").insert({
+        worker_id: workerId || null,
+        title: cleanTitle,
+        description: cleanDescription || null,
+        status: "pending",
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setWorkerId("");
+      setTitle("");
+      setDescription("");
+      setSuccessMessage("Task created successfully.");
+
+      window.location.reload();
+    } catch (error) {
+      console.error("Create task error:", error);
+
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Failed to create task."
+      );
+    } finally {
+      setLoading(false);
     }
-
-    setWorkerId("");
-    setTitle("");
-    setDescription("");
-
-    window.location.reload();
   }
 
   return (
-    <div className="bg-[#111827] border border-white/10 rounded-3xl p-6 mb-8">
-      <h2 className="text-3xl font-bold mb-6">Add Store Task</h2>
+    <form
+      onSubmit={handleSubmit}
+      className="mb-8 rounded-3xl border border-white/10 bg-[#111827] p-6"
+    >
+      <h2 className="mb-6 text-3xl font-bold">
+        Add Store Task
+      </h2>
+
+      <label className="mb-2 block font-medium">
+        Assign worker
+      </label>
 
       <select
-        className="w-full bg-[#020817] border border-white/10 rounded-xl p-4 mb-4"
+        className="mb-4 w-full rounded-xl border border-white/10 bg-[#020817] p-4"
         value={workerId}
-        onChange={(e) => setWorkerId(e.target.value)}
+        onChange={(event) =>
+          setWorkerId(event.target.value)
+        }
+        disabled={loading}
       >
-        <option value="">Assign to worker</option>
+        <option value="">Unassigned task</option>
 
         {workers.map((worker) => (
           <option key={worker.id} value={worker.id}>
@@ -56,26 +102,53 @@ export default function AddTaskForm({ workers }: { workers: Worker[] }) {
         ))}
       </select>
 
+      <label className="mb-2 block font-medium">
+        Task title
+      </label>
+
       <input
-        placeholder="Task title"
-        className="w-full bg-[#020817] border border-white/10 rounded-xl p-4 mb-4"
+        type="text"
+        placeholder="Enter task title"
+        className="mb-4 w-full rounded-xl border border-white/10 bg-[#020817] p-4"
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        onChange={(event) => setTitle(event.target.value)}
+        disabled={loading}
+        required
       />
+
+      <label className="mb-2 block font-medium">
+        Description
+      </label>
 
       <textarea
-        placeholder="Task description"
-        className="w-full bg-[#020817] border border-white/10 rounded-xl p-4 mb-4"
+        placeholder="Enter task description"
+        className="mb-4 min-h-32 w-full resize-y rounded-xl border border-white/10 bg-[#020817] p-4"
         value={description}
-        onChange={(e) => setDescription(e.target.value)}
+        onChange={(event) =>
+          setDescription(event.target.value)
+        }
+        disabled={loading}
       />
 
+      {errorMessage && (
+        <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-300">
+          {errorMessage}
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="mb-4 rounded-xl border border-green-500/30 bg-green-500/10 p-4 text-green-300">
+          {successMessage}
+        </div>
+      )}
+
       <button
-        onClick={addTask}
-        className="bg-green-500 hover:bg-green-600 px-6 py-3 rounded-xl font-bold"
+        type="submit"
+        disabled={loading}
+        className="rounded-xl bg-green-500 px-6 py-3 font-bold transition hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        Save Task
+        {loading ? "Saving..." : "Save Task"}
       </button>
-    </div>
+    </form>
   );
 }
